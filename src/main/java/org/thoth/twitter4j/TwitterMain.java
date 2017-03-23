@@ -10,6 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import twitter4j.GeoLocation;
+import twitter4j.HashtagEntity;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
@@ -47,9 +50,14 @@ public class TwitterMain {
             = new LinkedList<>();
 
         // 844661380821209089
-        // pirate character 844939775173808129
-        Collections.addAll(statuses, twitter.showStatus(844939775173808129L));
-
+        // ...  3 dot elipsis
+        // 844939775173808129
+        // pirate character
+        // 810880536528977920
+        // The fancy double-quote displays as ?
+        // The fancy single-quote displays as ?
+        // The video preview does not appear
+        Collections.addAll(statuses, twitter.showStatus(810880536528977920L));
 
         print(statuses);
 
@@ -90,16 +98,6 @@ public class TwitterMain {
             }
             System.out.println(text);
 
-            // Hashtags
-            // https://twitter.com/search?q=%23UnlimitedScreaming
-            HashtagEntity[] hashtagEntities = s.getHashtagEntities();
-            if (hashtagEntities != null) {
-                System.out.println("[HASHTAGS]");
-                for (HashtagEntity entity : hashtagEntities) {
-                    System.out.println(ToStringBuilder.reflectionToString(entity));
-                }
-            }
-
             // User mentions
             UserMentionEntity[] userMentionEntities = s.getUserMentionEntities();
             if (userMentionEntities != null) {
@@ -120,20 +118,23 @@ public class TwitterMain {
              */
 //            System.out.println("--------------------------------------------------------------------------------------");
 //            System.out.println(ToStringBuilder.reflectionToString(s));
-
             System.out.println("======================================================================================");
         }
     }
 
     private static void print(Status s) throws Exception {
         // TEXT
+        if (s == null) {
+            System.out.printf("Status parameter is NULL%n%n");
+            return;
+        }
         System.out.printf("#getAccessLevel()%n%s%n%n", String.valueOf(s.getAccessLevel()));
         System.out.printf("#getContributors()%n%s%n%n", String.valueOf(Arrays.stream(s.getContributors()).boxed().collect(Collectors.toList())));
         System.out.printf("#getCreatedAt()%n%s%n%n", String.valueOf(s.getCreatedAt()));
         System.out.printf("#getCurrentUserRetweetId()%n%s%n%n", String.valueOf(s.getCurrentUserRetweetId()));
         System.out.printf("#getFavoriteCount()%n%s%n%n", String.valueOf(s.getFavoriteCount()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getGeoLocation()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getHashtagEntities()));
+        printGeolocation(s.getGeoLocation());
+        printHashTagEntities(s.getHashtagEntities());
         System.out.printf("#getId()%n%s%n%n", String.valueOf(s.getId()));
         System.out.printf("#getInReplyToScreenName()%n%s%n%n", String.valueOf(s.getInReplyToScreenName()));
         System.out.printf("#getInReplyToStatusId()%n%s%n%n", String.valueOf(s.getInReplyToStatusId()));
@@ -167,13 +168,13 @@ public class TwitterMain {
         System.out.printf("#getText()%n%s%n%n", rawText);
 
         System.out.printf(">>#toCharArray()%n");
-        char [] chars = rawText.toCharArray();
+        char[] chars = rawText.toCharArray();
         for (char c : chars) {
-            System.out.printf("%d\t%d\t%b\t%s%n"
-                , Character.getNumericValue(c)
-                , (int)c
-                , Character.isDefined(c)
-                , String.valueOf(c)
+            System.out.printf("%d\t%d\t%b\t%s%n",
+                 Character.getNumericValue(c),
+                 (int) c,
+                 Character.isDefined(c),
+                 String.valueOf(c)
             );
 
         }
@@ -196,5 +197,29 @@ public class TwitterMain {
         writer.println(" </html> ");
         writer.flush();
         writer.close();
+    }
+
+    private static void printGeolocation(GeoLocation g) {
+        System.out.printf("#getGeolocation()%n");
+        if (g == null) {
+            System.out.printf("GeoLocation parameter is NULL%n%n");
+            return;
+        }
+        System.out.printf("#getLatitude()%n%s%n%n", String.valueOf(g.getLatitude()));
+        System.out.printf("#getLongitude()%n%s%n%n", String.valueOf(g.getLongitude()));
+    }
+
+    private static void printHashTagEntities(HashtagEntity[] hashtagEntities) {
+        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getHashtagEntities()));
+        // Hashtags
+        // https://twitter.com/search?q=%23UnlimitedScreaming
+        System.out.printf("#getHashtagEntities()%n");
+        if (hashtagEntities == null || hashtagEntities.length == 0 ) {
+            System.out.printf("HashtagEntity[] parameter is NULL or empty%n%n");
+            return;
+        }
+        for (HashtagEntity entity : hashtagEntities) {
+            System.out.println(ToStringBuilder.reflectionToString(entity));
+        }
     }
 }
