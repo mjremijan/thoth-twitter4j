@@ -167,18 +167,18 @@ public class TwitterMain {
         String rawText = s.getText();
         System.out.printf("#getText()%n%s%n%n", rawText);
 
-        System.out.printf(">>#toCharArray()%n");
-        char[] chars = rawText.toCharArray();
-        for (char c : chars) {
-            System.out.printf("%d\t%d\t%b\t%s%n",
-                 Character.getNumericValue(c),
-                 (int) c,
-                 Character.isDefined(c),
-                 String.valueOf(c)
-            );
-
-        }
-        System.out.printf("%n");
+//        System.out.printf(">>#toCharArray()%n");
+//        char[] chars = rawText.toCharArray();
+//        for (char c : chars) {
+//            System.out.printf("%d\t%d\t%b\t%s%n",
+//                 Character.getNumericValue(c),
+//                 (int) c,
+//                 Character.isDefined(c),
+//                 String.valueOf(c)
+//            );
+//
+//        }
+//        System.out.printf("%n");
 
         OutputStreamWriter osw = new OutputStreamWriter(
             new FileOutputStream("c:\\users\\Michael\\Desktop\\a.html"), "UTF8");
