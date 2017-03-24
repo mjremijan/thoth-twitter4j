@@ -68,7 +68,10 @@ public class TwitterMain {
         // The fancy double-quote displays as ?
         // The fancy single-quote displays as ?
         // The video preview does not appear
-        Collections.addAll(statuses, twitter.showStatus(810880536528977920L));
+
+        // 826261326599057408
+        // japanese characters
+        Collections.addAll(statuses, twitter.showStatus(826261326599057408L));
 
         print(statuses);
 
@@ -104,7 +107,7 @@ public class TwitterMain {
         System.out.printf("#getLang()%n%s%n%n", String.valueOf(s.getLang()));
         printMediaEntities(s.getMediaEntities());
         printPlace(s.getPlace());
-        printQuotedStatus(s);
+        printQuotedStatus(s.getQuotedStatus());
         System.out.printf("#getQuotedStatusId()%n%s%n%n", String.valueOf(s.getQuotedStatusId()));
         printRateLimitStatus(s.getRateLimitStatus());
         System.out.printf("#getRetweetCount()%n%s%n%n", String.valueOf(s.getRetweetCount()));
@@ -143,7 +146,7 @@ public class TwitterMain {
 //        System.out.printf("%n");
 
         OutputStreamWriter osw = new OutputStreamWriter(
-            new FileOutputStream("c:\\users\\Michael\\Desktop\\a.html"), "UTF8");
+            new FileOutputStream("a.html"), "UTF8");
         PrintWriter writer = new PrintWriter(osw);
 
         writer.println(" <!DOCTYPE html> ");
