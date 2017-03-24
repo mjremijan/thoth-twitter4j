@@ -11,11 +11,20 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import twitter4j.GeoLocation;
 import twitter4j.HashtagEntity;
+import twitter4j.MediaEntity;
+import twitter4j.Place;
+import twitter4j.RateLimitStatus;
+import twitter4j.Scopes;
 import twitter4j.Status;
+import twitter4j.SymbolEntity;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
+import twitter4j.URLEntity;
+import twitter4j.User;
+import twitter4j.UserMentionEntity;
 import twitter4j.conf.ConfigurationBuilder;
 
 /**
@@ -51,8 +60,10 @@ public class TwitterMain {
 
         // 844661380821209089
         // ...  3 dot elipsis
+
         // 844939775173808129
         // pirate character
+
         // 810880536528977920
         // The fancy double-quote displays as ?
         // The fancy single-quote displays as ?
@@ -65,62 +76,13 @@ public class TwitterMain {
 
     private static void print(List<Status> statuses) throws Exception {
         System.out.printf("satuses size=%d\n", statuses.size());
-
         for (Status s : statuses) {
             System.out.println("======================================================================================");
-
             print(s);
-
-            /*
-
-            // Profile image
-            String profileImageUrl = s.getUser().getProfileImageURL();
-            System.out.println(profileImageUrl);
-
-            // Name
-            String name = s.getUser().getName();
-            // Screen name
-            String screenName = s.getUser().getScreenName();
-            // Time since tweet
-            SimpleDateFormat sdf = new SimpleDateFormat("(EEE, dd MMM yyyy, hh:mm:ss a)");
-            System.out.println(String.format("%s @%s  %s", name, screenName, sdf.format(s.getCreatedAt())));
-
-            // Text
-            String text = s.getText();
-            {
-                // Hyperlinks
-                URLEntity[] urlEntities = s.getURLEntities();
-                if (urlEntities != null) {
-                    for (URLEntity urlEntity : urlEntities) {
-                        text = text.replaceAll(urlEntity.getURL(), urlEntity.getExpandedURL());
-                    }
-                }
-            }
-            System.out.println(text);
-
-            // User mentions
-            UserMentionEntity[] userMentionEntities = s.getUserMentionEntities();
-            if (userMentionEntities != null) {
-                System.out.println("[USER MENTIONS]");
-                for (UserMentionEntity entity : userMentionEntities) {
-                    System.out.println(ToStringBuilder.reflectionToString(entity));
-                }
-            }
-
-            // URL Entities
-            URLEntity[] urlEntities = s.getURLEntities();
-            if (urlEntities != null) {
-                System.out.println("[URL ENTITIES]");
-                for (URLEntity entity : urlEntities) {
-                    System.out.println(ToStringBuilder.reflectionToString(entity));
-                }
-            }
-             */
-//            System.out.println("--------------------------------------------------------------------------------------");
-//            System.out.println(ToStringBuilder.reflectionToString(s));
             System.out.println("======================================================================================");
         }
     }
+
 
     private static void print(Status s) throws Exception {
         // TEXT
@@ -140,20 +102,20 @@ public class TwitterMain {
         System.out.printf("#getInReplyToStatusId()%n%s%n%n", String.valueOf(s.getInReplyToStatusId()));
         System.out.printf("#getInReplyToUserId()%n%s%n%n", String.valueOf(s.getInReplyToUserId()));
         System.out.printf("#getLang()%n%s%n%n", String.valueOf(s.getLang()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getMediaEntities()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getPlace()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getQuotedStatus()));
+        printMediaEntities(s.getMediaEntities());
+        printPlace(s.getPlace());
+        printQuotedStatus(s);
         System.out.printf("#getQuotedStatusId()%n%s%n%n", String.valueOf(s.getQuotedStatusId()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getRateLimitStatus()));
+        printRateLimitStatus(s.getRateLimitStatus());
         System.out.printf("#getRetweetCount()%n%s%n%n", String.valueOf(s.getRetweetCount()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getRetweetedStatus()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getScopes()));
+        printRetweetedStatus(s.getRetweetedStatus());
+        printScopes(s.getScopes());
         System.out.printf("#getSource()%n%s%n%n", String.valueOf(s.getSource()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getSymbolEntities()));
+        printSymbolEntities(s.getSymbolEntities());
         printText(s);
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getURLEntities()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getUser()));
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getUserMentionEntities()));
+        printURLEntities(s.getURLEntities());
+        printUser(s.getUser());
+        printUserMentionEntities(s.getUserMentionEntities());
         System.out.printf("#getWithheldInCountries()%n%s%n%n", String.valueOf(s.getWithheldInCountries()));
         System.out.printf("#isFavorited()%n%s%n%n", String.valueOf(s.isFavorited()));
         System.out.printf("#isPossiblySensitive()%n%s%n%n", String.valueOf(s.isPossiblySensitive()));
@@ -210,16 +172,112 @@ public class TwitterMain {
     }
 
     private static void printHashTagEntities(HashtagEntity[] hashtagEntities) {
-        //System.out.printf("#XXX()%n%s%n%n", String.valueOf(s.getHashtagEntities()));
-        // Hashtags
-        // https://twitter.com/search?q=%23UnlimitedScreaming
         System.out.printf("#getHashtagEntities()%n");
         if (hashtagEntities == null || hashtagEntities.length == 0 ) {
             System.out.printf("HashtagEntity[] parameter is NULL or empty%n%n");
             return;
         }
         for (HashtagEntity entity : hashtagEntities) {
-            System.out.println(ToStringBuilder.reflectionToString(entity));
+            System.out.println(ToStringBuilder.reflectionToString(entity,ToStringStyle.MULTI_LINE_STYLE));
+        }
+    }
+
+    private static void printMediaEntities(MediaEntity[] mediaEntities) {
+        System.out.printf("#getMediaEntities()%n");
+        if (mediaEntities == null || mediaEntities.length == 0) {
+            System.out.printf("MediaEntity[] parameter is NULL or empty%n%n");
+            return;
+        }
+        for (MediaEntity entity : mediaEntities) {
+            System.out.println(ToStringBuilder.reflectionToString(entity,ToStringStyle.MULTI_LINE_STYLE));
+        }
+    }
+
+    private static void printPlace(Place place) {
+        System.out.printf("#getPlace()%n");
+        if (place == null) {
+            System.out.printf("Place parameter is NULL%n%n");
+            return;
+        }
+        System.out.println(ToStringBuilder.reflectionToString(place,ToStringStyle.MULTI_LINE_STYLE));
+    }
+
+
+    private static void printQuotedStatus(Status s) throws Exception {
+        System.out.printf("#getQuotedStatus()%n");
+        if (s == null) {
+            System.out.printf("Status parameter is NULL%n%n");
+            return;
+        }
+        print(s);
+    }
+
+    private static void printRateLimitStatus(RateLimitStatus rateLimitStatus) {
+        System.out.printf("#getRateLimitStatus()%n");
+        if (rateLimitStatus == null) {
+            System.out.printf("RateLimitStatus parameter is NULL%n%n");
+            return;
+        }
+        System.out.println(ToStringBuilder.reflectionToString(rateLimitStatus,ToStringStyle.MULTI_LINE_STYLE));
+    }
+
+    private static void printRetweetedStatus(Status retweetedStatus) throws Exception {
+        System.out.printf("#getRetweetedStatus()%n");
+        if (retweetedStatus == null) {
+            System.out.printf("Status parameter is NULL%n%n");
+            return;
+        }
+        print(retweetedStatus);
+    }
+
+    private static void printScopes(Scopes scopes) {
+        System.out.printf("#getScopes()%n");
+        if (scopes == null) {
+            System.out.printf("Scopes parameter is NULL%n%n");
+            return;
+        }
+        System.out.println(ToStringBuilder.reflectionToString(scopes,ToStringStyle.MULTI_LINE_STYLE));
+    }
+
+    private static void printSymbolEntities(SymbolEntity[] symbolEntities) {
+        System.out.printf("#getSymbolEntities()%n");
+        if (symbolEntities == null || symbolEntities.length == 0) {
+            System.out.printf("SymbolEntity[] parameter is NULL or empty%n%n");
+            return;
+        }
+        for (SymbolEntity entity : symbolEntities) {
+            System.out.println(ToStringBuilder.reflectionToString(entity,ToStringStyle.MULTI_LINE_STYLE));
+        }
+    }
+
+    private static void printURLEntities(URLEntity[] urlEntities) {
+        System.out.printf("#getURLEntities()%n");
+        if (urlEntities == null || urlEntities.length == 0) {
+            System.out.printf("URLEntity[] parameter is NULL or empty%n%n");
+            return;
+        }
+        for (URLEntity entity : urlEntities) {
+            System.out.println(ToStringBuilder.reflectionToString(entity,ToStringStyle.MULTI_LINE_STYLE));
+        }
+    }
+
+    private static void printUser(User user) {
+        System.out.printf("#getUser()%n");
+        if (user == null) {
+            System.out.printf("User parameter is NULL%n%n");
+            return;
+        }
+        System.out.println(ToStringBuilder.reflectionToString(user,ToStringStyle.MULTI_LINE_STYLE));
+    }
+
+    private static void printUserMentionEntities(UserMentionEntity[] userMentionEntities) {
+        System.out.printf("#getUserMentionEntities()%n");
+        if (userMentionEntities == null || userMentionEntities.length == 0) {
+            System.out.printf("UserMentionEntity[] parameter is NULL or empty%n%n");
+            return;
+        }
+        for (UserMentionEntity entity : userMentionEntities) {
+            System.out.println(ToStringBuilder.reflectionToString(entity,ToStringStyle.MULTI_LINE_STYLE));
         }
     }
 }
