@@ -72,9 +72,9 @@ public class TwitterMain {
         // 826261326599057408
         // japanese characters
 
-        // 846101088965181444
-        // media image photo
-        Collections.addAll(statuses, twitter.showStatus(846101088965181444L));
+        // 846462589768912896
+        // image not showing up in tweial
+        Collections.addAll(statuses, twitter.showStatus(846462589768912896L));
 
         print(statuses);
 
