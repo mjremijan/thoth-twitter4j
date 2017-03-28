@@ -71,7 +71,10 @@ public class TwitterMain {
 
         // 826261326599057408
         // japanese characters
-        Collections.addAll(statuses, twitter.showStatus(826261326599057408L));
+
+        // 846101088965181444
+        // media image photo
+        Collections.addAll(statuses, twitter.showStatus(846101088965181444L));
 
         print(statuses);
 
